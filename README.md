@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -17,12 +17,13 @@
             background-color: var(--serene-light);
             color: var(--text-dark);
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
             padding: 40px 20px;
             margin: 0;
         }
 
-        .container {
+        #report-container {
             background: white;
             padding: 3rem;
             border-radius: 20px;
@@ -45,10 +46,33 @@
             text-transform: uppercase;
         }
 
-        .header p {
-            margin: 5px 0 0;
-            color: #888;
-            font-style: italic;
+        .admin-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .admin-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-field label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .admin-input {
+            border: none;
+            border-bottom: 1px solid #ccc;
+            padding: 5px 0;
+            font-size: 1rem;
+            outline: none;
         }
 
         table {
@@ -67,32 +91,22 @@
         }
 
         td {
-            padding: 15px 10px;
+            padding: 12px 10px;
             border-bottom: 1px solid #f9f9f9;
         }
 
         .denom-label {
             font-weight: 600;
-            color: var(--text-dark);
         }
 
-        input {
-            width: 100px;
-            padding: 10px;
-            border: 2px solid #eee;
-            border-radius: 8px;
-            font-size: 1.1rem;
+        .qty-input {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #eee;
+            border-radius: 6px;
             text-align: center;
-            transition: all 0.3s ease;
         }
 
-        input:focus {
-            outline: none;
-            border-color: var(--serene-accent);
-            background-color: #fff;
-        }
-
-        /* Removes arrows from number input */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -103,45 +117,69 @@
             font-weight: 700;
             color: var(--serene-green);
             text-align: right;
-            font-size: 1.1rem;
         }
 
         .grand-total-section {
             margin-top: 30px;
-            padding: 25px;
+            padding: 20px;
             background-color: var(--serene-light);
             border-radius: 12px;
             text-align: center;
         }
 
-        .grand-total-label {
-            display: block;
-            font-size: 0.9rem;
-            color: #666;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-
         #grand-total {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
             color: var(--serene-green);
         }
 
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.8rem;
-            color: #ccc;
+        .button-group {
+            margin-top: 25px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-download {
+            background-color: var(--serene-green);
+            color: white;
+        }
+
+        .btn-download:hover {
+            background-color: #3a6347;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div id="report-container">
     <div class="header">
         <h1>Serene</h1>
-        <p>Currency Management Solutions</p>
+        <p>Currency Automation System</p>
+    </div>
+
+    <div class="admin-section">
+        <div class="admin-field">
+            <label>First Name</label>
+            <input type="text" class="admin-input" id="firstName" placeholder="First Name">
+        </div>
+        <div class="admin-field">
+            <label>Last Name</label>
+            <input type="text" class="admin-input" id="lastName" placeholder="Last Name">
+        </div>
+        <div class="admin-field" style="grid-column: span 2;">
+            <label>Report Date & Time</label>
+            <input type="text" class="admin-input" id="timestamp" readonly>
+        </div>
     </div>
     
     <table>
@@ -152,33 +190,39 @@
                 <th style="text-align: right;">Subtotal</th>
             </tr>
         </thead>
-        <tbody id="currency-rows">
-            </tbody>
+        <tbody id="currency-rows"></tbody>
     </table>
 
     <div class="grand-total-section">
-        <span class="grand-total-label">Grand Total Balance</span>
+        <span style="font-size: 0.8rem; text-transform: uppercase; color: #666;">Grand Total Balance</span><br>
         <span id="grand-total">$0.00</span>
-    </div>
-
-    <div class="footer">
-        &copy; 2026 Serene Systems. Prepared for Christian Martinez.
     </div>
 </div>
 
+<div class="button-group">
+    <button class="btn btn-download" onclick="exportToDoc()">Download Report (.doc)</button>
+</div>
+
 <script>
+    // Updated list with 1 dollar and half dollar coins
     const denominations = [
         { label: '$100 Bills', value: 100 },
         { label: '$50 Bills', value: 50 },
         { label: '$20 Bills', value: 20 },
         { label: '$10 Bills', value: 10 },
         { label: '$5 Bills', value: 5 },
+        { label: '$2 Bills', value: 2 },
         { label: '$1 Bills', value: 1 },
-        { label: 'Quarters', value: 0.25 },
-        { label: 'Dimes', value: 0.10 },
-        { label: 'Nickels', value: 0.05 },
-        { label: 'Pennies', value: 0.01 }
+        { label: '$1.00 Coins', value: 1 },
+        { label: '50¢ Coins (Half-Dollar)', value: 0.50 },
+        { label: '25¢ Coins (Quarters)', value: 0.25 },
+        { label: '10¢ Coins (Dimes)', value: 0.10 },
+        { label: '5¢ Coins (Nickels)', value: 0.05 },
+        { label: '1¢ Coins (Pennies)', value: 0.01 }
     ];
+
+    // Set real-time date
+    document.getElementById('timestamp').value = new Date().toLocaleString();
 
     const tableBody = document.getElementById('currency-rows');
 
@@ -187,11 +231,7 @@
         row.innerHTML = `
             <td class="denom-label">${denom.label}</td>
             <td>
-                <input type="number" 
-                       id="qty-${index}" 
-                       min="0" 
-                       placeholder="0" 
-                       oninput="calculate()">
+                <input type="number" id="qty-${index}" class="qty-input" min="0" value="0" oninput="calculate()">
             </td>
             <td class="total-cell">$<span id="total-${index}">0.00</span></td>
         `;
@@ -200,24 +240,55 @@
 
     function calculate() {
         let grandTotal = 0;
-
         denominations.forEach((denom, index) => {
-            const qtyInput = document.getElementById(`qty-${index}`);
-            const qty = parseFloat(qtyInput.value) || 0;
+            const qty = parseFloat(document.getElementById(`qty-${index}`).value) || 0;
             const rowTotal = qty * denom.value;
-            
-            document.getElementById(`total-${index}`).innerText = rowTotal.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-
+            document.getElementById(`total-${index}`).innerText = rowTotal.toFixed(2);
             grandTotal += rowTotal;
         });
+        document.getElementById('grand-total').innerText = '$' + grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
+    }
 
-        document.getElementById('grand-total').innerText = '$' + grandTotal.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+    function exportToDoc() {
+        const firstName = document.getElementById('firstName').value || "N/A";
+        const lastName = document.getElementById('lastName').value || "N/A";
+        const dateStr = new Date().toLocaleString();
+        const totalAmount = document.getElementById('grand-total').innerText;
+
+        let tableContent = "";
+        denominations.forEach((denom, index) => {
+            const qty = document.getElementById(`qty-${index}`).value || 0;
+            const sub = document.getElementById(`total-${index}`).innerText;
+            if(qty > 0) { // Only include rows that have a quantity in the final report
+                tableContent += `<tr><td style="padding:5px;">${denom.label}</td><td style="padding:5px;">${qty}</td><td style="padding:5px;">$${sub}</td></tr>`;
+            }
         });
+
+        const htmlContent = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head><meta charset="utf-8"></head>
+            <body style="font-family: Arial, sans-serif;">
+                <h1 style="color:#4a7c59;">SERENE CURRENCY REPORT</h1>
+                <p><strong>Teller Name:</strong> ${firstName} ${lastName}</p>
+                <p><strong>Generated On:</strong> ${dateStr}</p>
+                <hr>
+                <table border="1" style="width:100%; border-collapse:collapse;">
+                    <thead style="background-color:#f8faf9;">
+                        <tr><th>Denomination</th><th>Quantity</th><th>Subtotal</th></tr>
+                    </thead>
+                    <tbody>${tableContent}</tbody>
+                </table>
+                <h2 style="text-align:right;">Grand Total: ${totalAmount}</h2>
+            </body>
+            </html>`;
+
+        const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Serene_Report_${lastName}.doc`;
+        link.click();
+        URL.revokeObjectURL(url);
     }
 </script>
 
